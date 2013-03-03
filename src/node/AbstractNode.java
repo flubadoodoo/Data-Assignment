@@ -27,7 +27,7 @@ public abstract class AbstractNode {
 	abstract public void drawNode(Graphics g);
 	
 	public boolean contains(float x, float y, float xOff, float yOff) {
-		return (x > this.xCenter + xOff && x < this.xCenter + xOff + AbstractNode.getRadius() * 2 && y > this.yCenter + yOff && y < this.yCenter + yOff + AbstractNode.getRadius() * 2);
+		return (x > this.xCenter - getRadius() + xOff && x < this.xCenter - getRadius() + xOff + AbstractNode.getRadius() * 2 && y > this.yCenter - getRadius() + yOff && y < this.yCenter - getRadius() + yOff + AbstractNode.getRadius() * 2);
 	}
 
 	/**
