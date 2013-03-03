@@ -13,15 +13,15 @@ public abstract class AbstractNode {
 	private Shape nodeShape;
 	
 	static {
-		radius = 5.0f;
+		radius = 10.0f;
 	}
 	
 	public AbstractNode(float x, float y) {
+		setNodeShape(new Circle(getxCenter(), getyCenter(), getRadius()));
 		setxCenter(x);
 		setyCenter(y);
 		setSelected(false);
 		setHighlighted(false);
-		setNodeShape(new Circle(getxCenter(), getyCenter(), getRadius()));
 	}
 	
 	abstract public void drawNode(Graphics g);
@@ -60,6 +60,7 @@ public abstract class AbstractNode {
 	 */
 	public void setxCenter(float xCenter) {
 		this.xCenter = xCenter;
+		getNodeShape().setCenterX(xCenter);
 	}
 	
 	/**
@@ -74,6 +75,7 @@ public abstract class AbstractNode {
 	 */
 	public void setyCenter(float yCenter) {
 		this.yCenter = yCenter;
+		getNodeShape().setCenterY(yCenter);
 	}
 
 	/**

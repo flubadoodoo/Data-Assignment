@@ -1,5 +1,7 @@
 package states.free;
 
+import hud.HUD;
+import node.AbstractNode;
 import node.StartNode;
 
 import org.newdawn.slick.GameContainer;
@@ -13,23 +15,31 @@ import core.Program;
 
 public class Free_Build_State implements GameState {
 
-	private static final float MOVE_SPEED;
-	
+	private static final float CAMERA_ACCELERATION;
+	private static final float CAMERA_SPEED_THRESHHOLD;
+	private static final float CAMERA_DAMPING_FACTOR;
+
+	private HUD hud;
 	private StartNode node;
 	private boolean[] movingInDireciton;
+	private float[] cameraVelocity;
 	private float xOff;
 	private float yOff;
-	
+
 	static {
-		MOVE_SPEED = 0.1f;
+		CAMERA_ACCELERATION = 0.01f;
+		CAMERA_SPEED_THRESHHOLD = CAMERA_ACCELERATION * 10.0f;
+		CAMERA_DAMPING_FACTOR = 0.94f;
 	}
-	
+
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+		hud = new HUD(new AbstractNode[] { new StartNode(0, 0) });
 		node = new StartNode(300, 300);
 		movingInDireciton = new boolean[4];
 		for (int i = 0; i < movingInDireciton.length; i++) {
 			movingInDireciton[i] = false;
 		}
+		cameraVelocity = new float[] { 0.0f, 0.0f };
 		xOff = 0;
 		yOff = 0;
 	}
@@ -43,43 +53,42 @@ public class Free_Build_State implements GameState {
 	}
 
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+		hud.drawHUD(g);
 		g.translate(xOff, yOff);
 		node.drawNode(g);
 	}
 
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		if (movingInDireciton[0]) {
-			xOff -= MOVE_SPEED * delta;
+			cameraVelocity[0] -= CAMERA_ACCELERATION * delta;
+		} else if (movingInDireciton[2]) {
+			cameraVelocity[0] += CAMERA_ACCELERATION * delta;
+		} else {
+			cameraVelocity[0] *= CAMERA_DAMPING_FACTOR;
 		}
 		if (movingInDireciton[1]) {
-			yOff += MOVE_SPEED * delta;
+			cameraVelocity[1] += CAMERA_ACCELERATION * delta;
+		} else if (movingInDireciton[3]) {
+			cameraVelocity[1] -= CAMERA_ACCELERATION * delta;
+		} else {
+			cameraVelocity[1] *= CAMERA_DAMPING_FACTOR;
 		}
-		if (movingInDireciton[2]) {
-			xOff += MOVE_SPEED * delta;
+		if (Math.abs(cameraVelocity[0]) < CAMERA_SPEED_THRESHHOLD) {
+			cameraVelocity[0] = 0.0f;
 		}
-		if (movingInDireciton[3]) {
-			yOff -= MOVE_SPEED * delta;
+		if (Math.abs(cameraVelocity[1]) < CAMERA_SPEED_THRESHHOLD) {
+			cameraVelocity[1] = 0.0f;
 		}
+		xOff += cameraVelocity[0];
+		yOff += cameraVelocity[1];
 	}
-	
+
 	public int getID() {
 		return Program.getStateID(this);
 	}
 
 	/* ********** Input ********* */
 
-	public void mouseClicked(int button, int x, int y, int clickCount) {
-		
-	}
-
-	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
-
-	}
-
-	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
-
-	}
-	
 	public void keyPressed(int key, char c) {
 		switch (key) {
 		case 1:
@@ -117,6 +126,18 @@ public class Free_Build_State implements GameState {
 		}
 	}
 
+	public void mouseClicked(int button, int x, int y, int clickCount) {
+
+	}
+
+	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+
+	}
+
+	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
+
+	}
+
 	public void mousePressed(int button, int x, int y) {
 
 	}
@@ -126,7 +147,7 @@ public class Free_Build_State implements GameState {
 	}
 
 	public void mouseWheelMoved(int change) {
-		
+		hud.mouseWheelMoved(change);
 	}
 
 	public void inputEnded() {
@@ -235,7 +256,8 @@ public class Free_Build_State implements GameState {
 	}
 
 	/**
-	 * @param movingInDireciton the movingInDireciton to set
+	 * @param movingInDireciton
+	 *            the movingInDireciton to set
 	 */
 	public void setMovingInDireciton(boolean[] movingInDireciton) {
 		this.movingInDireciton = movingInDireciton;
@@ -249,10 +271,71 @@ public class Free_Build_State implements GameState {
 	}
 
 	/**
-	 * @param node the node to set
+	 * @param node
+	 *            the node to set
 	 */
 	public void setNode(StartNode node) {
 		this.node = node;
+	}
+
+	/**
+	 * @return the cameraVelocity
+	 */
+	public float[] getCameraVelocity() {
+		return cameraVelocity;
+	}
+
+	/**
+	 * @param cameraVelocity
+	 *            the cameraVelocity to set
+	 */
+	public void setCameraVelocity(float[] cameraVelocity) {
+		this.cameraVelocity = cameraVelocity;
+	}
+
+	/**
+	 * @return the hud
+	 */
+	public HUD getHud() {
+		return hud;
+	}
+
+	/**
+	 * @param hud
+	 *            the hud to set
+	 */
+	public void setHud(HUD hud) {
+		this.hud = hud;
+	}
+
+	/**
+	 * @return the xOff
+	 */
+	public float getxOff() {
+		return xOff;
+	}
+
+	/**
+	 * @param xOff
+	 *            the xOff to set
+	 */
+	public void setxOff(float xOff) {
+		this.xOff = xOff;
+	}
+
+	/**
+	 * @return the yOff
+	 */
+	public float getyOff() {
+		return yOff;
+	}
+
+	/**
+	 * @param yOff
+	 *            the yOff to set
+	 */
+	public void setyOff(float yOff) {
+		this.yOff = yOff;
 	}
 
 }
