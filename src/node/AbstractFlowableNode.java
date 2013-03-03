@@ -11,6 +11,7 @@ public abstract class AbstractFlowableNode extends AbstractNode {
 	private int flowCounter;
 
 	public AbstractFlowableNode(float x, float y, ArrayList<AbstractNode> flowNodes) {
+		super(x, y);
 		this.flowNodes = flowNodes;
 		flowCounter = 0;
 	}

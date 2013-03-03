@@ -1,17 +1,30 @@
 package node;
 
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Shape;
+
 public abstract class AbstractNode {
 	
 	private static float radius;
 	private float xCenter, yCenter;
 	private boolean selected;
 	private boolean highlighted;
+	private Shape nodeShape;
 	
 	static {
 		radius = 5.0f;
 	}
 	
-	abstract public void drawNode(float xOff, float yOff);
+	public AbstractNode(float x, float y) {
+		setxCenter(x);
+		setyCenter(y);
+		setSelected(false);
+		setHighlighted(false);
+		setNodeShape(new Circle(getxCenter(), getyCenter(), getRadius()));
+	}
+	
+	abstract public void drawNode(Graphics g);
 	
 	public boolean contains(float x, float y, float xOff, float yOff) {
 		return (x > this.xCenter + xOff && x < this.xCenter + xOff + AbstractNode.getRadius() * 2 && y > this.yCenter + yOff && y < this.yCenter + yOff + AbstractNode.getRadius() * 2);
@@ -89,6 +102,20 @@ public abstract class AbstractNode {
 	 */
 	public void setHighlighted(boolean highlighted) {
 		this.highlighted = highlighted;
+	}
+
+	/**
+	 * @return the nodeShape
+	 */
+	public Shape getNodeShape() {
+		return nodeShape;
+	}
+
+	/**
+	 * @param nodeShape the nodeShape to set
+	 */
+	public void setNodeShape(Shape nodeShape) {
+		this.nodeShape = nodeShape;
 	}
 
 }
