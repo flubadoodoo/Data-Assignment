@@ -10,6 +10,12 @@ public abstract class AbstractNode {
 	static {
 		radius = 5.0f;
 	}
+	
+	abstract public void drawNode(float xOff, float yOff);
+	
+	public boolean contains(float x, float y, float xOff, float yOff) {
+		return (x > this.xCenter + xOff && x < this.xCenter + xOff + AbstractNode.getRadius() * 2 && y > this.yCenter + yOff && y < this.yCenter + yOff + AbstractNode.getRadius() * 2);
+	}
 
 	/**
 	 * @return the radius
@@ -18,7 +24,7 @@ public abstract class AbstractNode {
 		return radius;
 	}
 	
-	public int getFlowCount() {
+	public int getPathCount() {
 		return 1;
 	}
 

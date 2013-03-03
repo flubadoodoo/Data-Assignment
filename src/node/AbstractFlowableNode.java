@@ -2,6 +2,9 @@ package node;
 
 import java.util.ArrayList;
 
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Graphics;
+
 public abstract class AbstractFlowableNode extends AbstractNode {
 
 	private ArrayList<AbstractNode> flowNodes;
@@ -28,19 +31,50 @@ public abstract class AbstractFlowableNode extends AbstractNode {
 	}
 	
 	public void update() {
-		setFlowCounter(calculateFlowCount());
+		setFlowCounter(calculatePathCount());
 	}
 	
-	public int getFlowCount() {
+	public int getPathCount() {
 		return getFlowCounter();
 	}
 
-	private int calculateFlowCount() {
+	private int calculatePathCount() {
 		int sumOfFlows = 0;
 		for (AbstractNode node : flowNodes) {
-			sumOfFlows += node.getFlowCount();
+			sumOfFlows += node.getPathCount();
 		}
 		return sumOfFlows;
+	}
+	
+	public void drawNodeLine(Graphics g, float xOff, float yOff) {
+		for (AbstractNode node : flowNodes) {
+			g.drawGradientLine(node.getxCenter() + xOff, node.getyCenter() + yOff, Color.red, getxCenter() + xOff, getyCenter() + yOff, Color.green);
+		}
+	}
+	
+	public void addFlowNode(AbstractNode node) {
+		if (!searchFlowNodeHierarchyFor(node)) {
+			flowNodes.add(node);
+		}
+	}
+
+	public boolean searchFlowNodeHierarchyFor(AbstractNode node) {
+		if (!searchImmediateFlowNodeHierarchyFor(node)) {
+			for (AbstractNode checkingNode : flowNodes) {
+				if (checkingNode instanceof AbstractFlowableNode)
+					return ((AbstractFlowableNode) checkingNode).searchFlowNodeHierarchyFor(node);
+				else if (checkingNode instanceof AbstractNode)
+					return (node == checkingNode);
+			}
+		}
+		return true;
+	}
+	
+	public boolean searchImmediateFlowNodeHierarchyFor(AbstractNode node) {
+		for (AbstractNode checkingNode : flowNodes)
+			if (node == checkingNode)
+				return true;
+		return false;
 	}
 
 	/**
