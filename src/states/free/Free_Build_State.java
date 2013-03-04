@@ -1,7 +1,16 @@
 package states.free;
 
+import java.util.ArrayList;
+
 import hud.HUD;
-import node.AbstractNode;
+import node.AbstractNonPlaceableNode;
+import node.AbstractPlaceableFlowableNode;
+import node.AbstractPlaceableNode;
+import node.ConnectorNode;
+import node.EndNode;
+import node.HUDConnectorNode;
+import node.HUDEndNode;
+import node.HUDStartNode;
 import node.StartNode;
 
 import org.newdawn.slick.GameContainer;
@@ -20,11 +29,11 @@ public class Free_Build_State implements GameState {
 	private static final float CAMERA_DAMPING_FACTOR;
 
 	private HUD hud;
-	private StartNode node;
 	private boolean[] movingInDireciton;
 	private float[] cameraVelocity;
 	private float xOff;
 	private float yOff;
+	private ArrayList<AbstractPlaceableNode> nodes;
 
 	static {
 		CAMERA_ACCELERATION = 0.01f;
@@ -33,8 +42,7 @@ public class Free_Build_State implements GameState {
 	}
 
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-		hud = new HUD(new AbstractNode[] { new StartNode(0, 0) });
-		node = new StartNode(300, 300);
+		hud = new HUD(new AbstractNonPlaceableNode[] { new HUDStartNode(), new HUDConnectorNode(), new HUDEndNode() });
 		movingInDireciton = new boolean[4];
 		for (int i = 0; i < movingInDireciton.length; i++) {
 			movingInDireciton[i] = false;
@@ -42,6 +50,7 @@ public class Free_Build_State implements GameState {
 		cameraVelocity = new float[] { 0.0f, 0.0f };
 		xOff = 0;
 		yOff = 0;
+		nodes = new ArrayList<AbstractPlaceableNode>();
 	}
 
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
@@ -55,10 +64,29 @@ public class Free_Build_State implements GameState {
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 		hud.drawHUD(g);
 		g.translate(xOff, yOff);
-		node.drawNode(g);
+		drawNodes(g);
+	}
+
+	private void drawNodes(Graphics g) {
+		for (AbstractPlaceableNode node : nodes) {
+			node.drawNode(g);
+		}
 	}
 
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+		updateCamera(delta);
+		updateFlowableNodes();
+	}
+
+	private void updateFlowableNodes() {
+		for (AbstractPlaceableNode node : nodes) {
+			if (node instanceof AbstractPlaceableFlowableNode) {
+				((AbstractPlaceableFlowableNode) node).update();
+			}
+		}
+	}
+
+	private void updateCamera(int delta) {
 		if (movingInDireciton[0]) {
 			cameraVelocity[0] -= CAMERA_ACCELERATION * delta;
 		} else if (movingInDireciton[2]) {
@@ -139,7 +167,97 @@ public class Free_Build_State implements GameState {
 	}
 
 	public void mousePressed(int button, int x, int y) {
+		switch (hud.getSelection()) {
+		case 0:
+			boolean startNodeAlreadyExists = false;
+			for (AbstractPlaceableNode possibleStartNode : nodes) {
+				if (possibleStartNode instanceof StartNode) {
+					startNodeAlreadyExists = true;
+					break;
+				}
+			}
+			if (!startNodeAlreadyExists) {
+				nodes.add(new StartNode(x, y));
+			}
+			break;
+		case 1:
+			AbstractPlaceableNode node = getSelectedNode();
+			if (node == null) {
+				// trying to select node
+				selectNode(x, y);
+			} else {
+				selectNode(x, y);
+				AbstractPlaceableNode connectedNode = getSelectedNodeButIgnore(node);
+				if (connectedNode == null) {
+					// create new node
+					ConnectorNode newConnectorNode = new ConnectorNode(x, y);
+					if (node instanceof AbstractPlaceableFlowableNode) {
+						newConnectorNode.addFlowNode((AbstractPlaceableFlowableNode) node);
+					} else {
+						newConnectorNode.addFlowNode(node);
+					}
+					nodes.add(newConnectorNode);
+					newConnectorNode.update();
+					node.setSelected(false);
+					newConnectorNode.setSelected(false);
+				} else {
+					// connect node if possible
+					if (node instanceof StartNode) {
+						node.setSelected(false);
+						getSelectedNode().setSelected(false);
+						System.out.println("asdf");
+					} else {
+						if (connectedNode instanceof AbstractPlaceableFlowableNode) {
+							((AbstractPlaceableFlowableNode) connectedNode).addFlowNode((AbstractPlaceableFlowableNode) node);
+							connectedNode.setSelected(false);
+							node.setSelected(false);
+							((AbstractPlaceableFlowableNode) connectedNode).update();
+						}
+					}
+				}
+			}
+			break;
+		case 2:
+			boolean endNodeAlreadyExists = false;
+			for (AbstractPlaceableNode possibleEndNode : nodes) {
+				if (possibleEndNode instanceof EndNode) {
+					endNodeAlreadyExists = true;
+					break;
+				}
+			}
+			if (!endNodeAlreadyExists) {
+				nodes.add(new EndNode(x, y));
+			}
+			break;
+		}
+	}
 
+	private AbstractPlaceableNode getSelectedNodeButIgnore(AbstractPlaceableNode ignoreNode) {
+		for (AbstractPlaceableNode node : nodes) {
+			if (node.isSelected() && node != ignoreNode) {
+				return node;
+			}
+		}
+		return null;
+	}
+
+	private void selectNode(int x, int y) {
+		for (AbstractPlaceableNode node : nodes) {
+			node.setSelected(false);
+			if (node.contains(x, y, xOff, yOff)) {
+				node.setSelected(true);
+				break;
+			}
+		}
+	}
+
+	private AbstractPlaceableNode getSelectedNode() {
+		for (AbstractPlaceableNode node : nodes) {
+			if (node.isSelected()) {
+				return node;
+			}
+		}
+		return null;
 	}
 
 	public void mouseReleased(int button, int x, int y) {
@@ -261,21 +379,6 @@ public class Free_Build_State implements GameState {
 	 */
 	public void setMovingInDireciton(boolean[] movingInDireciton) {
 		this.movingInDireciton = movingInDireciton;
-	}
-
-	/**
-	 * @return the node
-	 */
-	public StartNode getNode() {
-		return node;
-	}
-
-	/**
-	 * @param node
-	 *            the node to set
-	 */
-	public void setNode(StartNode node) {
-		this.node = node;
 	}
 
 	/**

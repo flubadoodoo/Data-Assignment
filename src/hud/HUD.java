@@ -3,7 +3,7 @@ package hud;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
-import node.AbstractNode;
+import node.AbstractNonPlaceableNode;
 
 public class HUD {
 	
@@ -20,7 +20,7 @@ public class HUD {
 		HUD_ELEMENT_BLOCK_DIMENSION = 50.0f;
 	}
 	
-	public HUD(AbstractNode[] elements) {
+	public HUD(AbstractNonPlaceableNode[] elements) {
 		this.elements = new HUDElement[elements.length];
 		for (int i = 0; i < elements.length; i++) {
 			this.elements[i] = new HUDElement(elements[i], LEFT_SIDE_MARGIN + HUD_ELEMENT_BLOCK_DIMENSION / 2.0f + (i * HUD_ELEMENT_BLOCK_DIMENSION), TOP_MARGIN + HUD_ELEMENT_BLOCK_DIMENSION / 2.0f);

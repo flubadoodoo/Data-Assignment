@@ -8,26 +8,18 @@ public abstract class AbstractNode {
 	
 	private static float radius;
 	private float xCenter, yCenter;
-	private boolean selected;
-	private boolean highlighted;
 	private Shape nodeShape;
 	
 	static {
 		radius = 10.0f;
 	}
 	
-	public AbstractNode(float x, float y) {
+	public AbstractNode() {
 		setNodeShape(new Circle(getxCenter(), getyCenter(), getRadius()));
-		setxCenter(x);
-		setyCenter(y);
-		setSelected(false);
-		setHighlighted(false);
 	}
 	
-	abstract public void drawNode(Graphics g);
-	
-	public boolean contains(float x, float y, float xOff, float yOff) {
-		return (x > this.xCenter - getRadius() + xOff && x < this.xCenter - getRadius() + xOff + AbstractNode.getRadius() * 2 && y > this.yCenter - getRadius() + yOff && y < this.yCenter - getRadius() + yOff + AbstractNode.getRadius() * 2);
+	public void drawNode(Graphics g) {
+		g.fill(getNodeShape());
 	}
 
 	/**
@@ -35,10 +27,6 @@ public abstract class AbstractNode {
 	 */
 	public static float getRadius() {
 		return radius;
-	}
-	
-	public int getPathCount() {
-		return 1;
 	}
 
 	/**
@@ -62,7 +50,7 @@ public abstract class AbstractNode {
 		this.xCenter = xCenter;
 		getNodeShape().setCenterX(xCenter);
 	}
-	
+
 	/**
 	 * @return the yCenter
 	 */
@@ -76,34 +64,6 @@ public abstract class AbstractNode {
 	public void setyCenter(float yCenter) {
 		this.yCenter = yCenter;
 		getNodeShape().setCenterY(yCenter);
-	}
-
-	/**
-	 * @return the selected
-	 */
-	public boolean isSelected() {
-		return selected;
-	}
-
-	/**
-	 * @param selected the selected to set
-	 */
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
-
-	/**
-	 * @return the highlighted
-	 */
-	public boolean isHighlighted() {
-		return highlighted;
-	}
-
-	/**
-	 * @param highlighted the highlighted to set
-	 */
-	public void setHighlighted(boolean highlighted) {
-		this.highlighted = highlighted;
 	}
 
 	/**

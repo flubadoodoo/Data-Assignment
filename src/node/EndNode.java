@@ -3,9 +3,9 @@ package node;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
-public class StartNode extends AbstractPlaceableNode implements StartNodeInterface {
+public class EndNode extends AbstractPlaceableFlowableNode implements EndNodeInterface {
 
-	public StartNode(float x, float y) {
+	public EndNode(float x, float y) {
 		super(x, y);
 	}
 

@@ -3,12 +3,12 @@ package node;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
-public class StartNode extends AbstractPlaceableNode implements StartNodeInterface {
+public class ConnectorNode extends AbstractPlaceableFlowableNode implements ConnectorNodeInterface {
 
-	public StartNode(float x, float y) {
+	public ConnectorNode(float x, float y) {
 		super(x, y);
 	}
-
+	
 	public void drawNode(Graphics g) {
 		if (isSelected()) {
 			g.setColor(Color.yellow);

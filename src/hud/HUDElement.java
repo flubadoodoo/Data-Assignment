@@ -2,16 +2,16 @@ package hud;
 
 import org.newdawn.slick.Graphics;
 
-import node.AbstractNode;
+import node.AbstractNonPlaceableNode;
 
 public class HUDElement {
 	
-	private AbstractNode node;
+	private AbstractNonPlaceableNode node;
 	
-	public HUDElement(AbstractNode node, float xCenter, float yCenter) {
-		this.node = node;
-		node.setxCenter(xCenter);
-		node.setyCenter(yCenter);
+	public HUDElement(AbstractNonPlaceableNode elements, float xCenter, float yCenter) {
+		this.node = elements;
+		elements.setxCenter(xCenter);
+		elements.setyCenter(yCenter);
 	}
 	
 	public void drawElement(Graphics g) {
@@ -21,14 +21,14 @@ public class HUDElement {
 	/**
 	 * @return the node
 	 */
-	public AbstractNode getNode() {
+	public AbstractNonPlaceableNode getNode() {
 		return node;
 	}
 
 	/**
 	 * @param node the node to set
 	 */
-	public void setNode(AbstractNode node) {
+	public void setNode(AbstractNonPlaceableNode node) {
 		this.node = node;
 	}
 
