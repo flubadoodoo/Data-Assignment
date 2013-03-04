@@ -14,7 +14,7 @@ public abstract class AbstractPlaceableNode extends AbstractNode {
 	}
 	
 	public boolean contains(float x, float y, float xOff, float yOff) {
-		return (x > getxCenter() - getRadius() + xOff && x < getxCenter() - getRadius() + xOff + AbstractPlaceableNode.getRadius() * 2 && y > getyCenter() - getRadius() + yOff && y < getyCenter() - getRadius() + yOff + AbstractPlaceableNode.getRadius() * 21);
+		return (x > getxCenter() - getRadius() + xOff && x < getxCenter() - getRadius() + xOff + AbstractPlaceableNode.getRadius() * 2 && y > getyCenter() - getRadius() + yOff && y < getyCenter() - getRadius() + yOff + AbstractPlaceableNode.getRadius() * 2);
 	}
 
 	public int getPathCount() {

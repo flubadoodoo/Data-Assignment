@@ -64,12 +64,8 @@ public abstract class AbstractPlaceableFlowableNode extends AbstractPlaceableNod
 		g.drawString(String.valueOf(flowCounter), getxCenter() + getRadius(), getyCenter() + getRadius());
 	}
 	
-	public void addFlowNode(AbstractPlaceableNode node) {
-		flowNodes.add(node);
-	}
-	
-	public void addFlowNode(AbstractPlaceableFlowableNode node) {
-		flowNodes.add(node);
+	public void addFlowNode(AbstractPlaceableNode node3) {
+		flowNodes.add(node3);
 	}
 
 	public boolean searchFlowNodeHierarchyFor(AbstractPlaceableFlowableNode node) {

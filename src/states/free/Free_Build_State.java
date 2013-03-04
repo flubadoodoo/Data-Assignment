@@ -10,8 +10,12 @@ import node.ConnectorNode;
 import node.EndNode;
 import node.HUDConnectorNode;
 import node.HUDEndNode;
+import node.HUDRecieverWormholeNode;
 import node.HUDStartNode;
+import node.HUDTransmitterWormholeNode;
+import node.RecieverWormholeNode;
 import node.StartNode;
+import node.TransmitterWormholeNode;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -42,7 +46,7 @@ public class Free_Build_State implements GameState {
 	}
 
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-		hud = new HUD(new AbstractNonPlaceableNode[] { new HUDStartNode(), new HUDConnectorNode(), new HUDEndNode() });
+		hud = new HUD(new AbstractNonPlaceableNode[] { new HUDStartNode(), new HUDConnectorNode(), new HUDEndNode(), new HUDTransmitterWormholeNode(), new HUDRecieverWormholeNode() });
 		movingInDireciton = new boolean[4];
 		for (int i = 0; i < movingInDireciton.length; i++) {
 			movingInDireciton[i] = false;
@@ -51,6 +55,24 @@ public class Free_Build_State implements GameState {
 		xOff = 0;
 		yOff = 0;
 		nodes = new ArrayList<AbstractPlaceableNode>();
+		nodes.add(new StartNode(0, 0));
+		nodes.add(new ConnectorNode(-50, 50));
+		nodes.add(new ConnectorNode(50, 50));
+		
+		nodes.add(new ConnectorNode(-100, 100));
+		nodes.add(new ConnectorNode(0, 100));
+		nodes.add(new ConnectorNode(100, 100));
+		
+		nodes.add(new ConnectorNode(-150, 150));
+		nodes.add(new ConnectorNode(-50, 150));
+		nodes.add(new ConnectorNode(50, 150));
+		nodes.add(new ConnectorNode(150, 150));
+		
+		nodes.add(new ConnectorNode(-200, 200));
+		nodes.add(new ConnectorNode(-100, 200));
+		nodes.add(new ConnectorNode(0, 200));
+		nodes.add(new ConnectorNode(100, 200));
+		nodes.add(new ConnectorNode(200, 200));
 	}
 
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
@@ -79,9 +101,18 @@ public class Free_Build_State implements GameState {
 	}
 
 	private void updateFlowableNodes() {
+		ArrayList<AbstractPlaceableNode> transmitters = new ArrayList<AbstractPlaceableNode>();
 		for (AbstractPlaceableNode node : nodes) {
 			if (node instanceof AbstractPlaceableFlowableNode) {
 				((AbstractPlaceableFlowableNode) node).update();
+				if (node instanceof TransmitterWormholeNode) {
+					transmitters.add((TransmitterWormholeNode) node);
+				}
+			}
+		}
+		for (AbstractPlaceableNode node : nodes) {
+			if (node instanceof RecieverWormholeNode) {
+				((RecieverWormholeNode) node).setFlowNodes(transmitters);
 			}
 		}
 	}
@@ -229,6 +260,63 @@ public class Free_Build_State implements GameState {
 				nodes.add(new EndNode(x - xOff, y - yOff));
 			}
 			break;
+		case 3:
+			AbstractPlaceableNode node2 = getSelectedNode();
+			if (node2 == null) {
+				// trying to select node
+				selectNode(x, y);
+			} else {
+				selectNode(x, y);
+				AbstractPlaceableFlowableNode connectedNode = getSelectedNodeButIgnore(node2);
+				if (connectedNode == null) {
+					// create new node
+					TransmitterWormholeNode newTransmitter = new TransmitterWormholeNode(x - xOff, y - yOff);
+					if (node2 instanceof AbstractPlaceableFlowableNode) {
+						newTransmitter.addFlowNode((AbstractPlaceableFlowableNode) node2);
+					} else {
+						newTransmitter.addFlowNode(node2);
+					}
+					nodes.add(newTransmitter);
+					newTransmitter.update();
+					node2.setSelected(false);
+					newTransmitter.setSelected(false);
+				} else {
+					// connect node if possible
+					if (node2 instanceof StartNode) {
+						connectedNode.addFlowNode(node2);
+						node2.setSelected(false);
+						getSelectedNode().setSelected(false);
+					} else {
+						if (connectedNode instanceof AbstractPlaceableFlowableNode) {
+							((AbstractPlaceableFlowableNode) connectedNode).addFlowNode((AbstractPlaceableFlowableNode) node2);
+							connectedNode.setSelected(false);
+							node2.setSelected(false);
+							((AbstractPlaceableFlowableNode) connectedNode).update();
+						}
+					}
+				}
+			}
+			break;
+		case 4:
+			AbstractPlaceableNode node3 = getSelectedNode();
+			if (node3 == null) {
+				// trying to select node
+				selectNode(x, y);
+			} else {
+				// create new node
+				RecieverWormholeNode newTransmitter = new RecieverWormholeNode(x - xOff, y - yOff);
+				if (node3 instanceof AbstractPlaceableFlowableNode) {
+					newTransmitter.addFlowNode((AbstractPlaceableFlowableNode) node3);
+					((AbstractPlaceableFlowableNode) node3).addFlowNode(newTransmitter);
+				} else {
+					newTransmitter.addFlowNode(node3);
+				}
+				nodes.add(newTransmitter);
+				newTransmitter.update();
+				node3.setSelected(false);
+				newTransmitter.setSelected(false);
+			}
+			break;
 		}
 	}
 
@@ -242,8 +330,9 @@ public class Free_Build_State implements GameState {
 	}
 
 	private void selectNode(int x, int y) {
+		System.out.println("(" + x + ", " + y + ")");
 		for (AbstractPlaceableNode node : nodes) {
-			node.setSelected(false);
+			//node.setSelected(false);
 			if (node.contains(x, y, xOff, yOff)) {
 				node.setSelected(true);
 				break;
