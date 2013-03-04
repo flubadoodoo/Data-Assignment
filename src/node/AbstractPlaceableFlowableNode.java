@@ -69,11 +69,7 @@ public abstract class AbstractPlaceableFlowableNode extends AbstractPlaceableNod
 	}
 	
 	public void addFlowNode(AbstractPlaceableFlowableNode node) {
-		if (!searchFlowNodeHierarchyFor(node) || node instanceof EndNode) {
-			flowNodes.add(node);
-		} else {
-			node.setSelected(false);
-		}
+		flowNodes.add(node);
 	}
 
 	public boolean searchFlowNodeHierarchyFor(AbstractPlaceableFlowableNode node) {

@@ -177,7 +177,7 @@ public class Free_Build_State implements GameState {
 				}
 			}
 			if (!startNodeAlreadyExists) {
-				nodes.add(new StartNode(x, y));
+				nodes.add(new StartNode(x - xOff, y - yOff));
 			}
 			break;
 		case 1:
@@ -187,10 +187,10 @@ public class Free_Build_State implements GameState {
 				selectNode(x, y);
 			} else {
 				selectNode(x, y);
-				AbstractPlaceableNode connectedNode = getSelectedNodeButIgnore(node);
+				AbstractPlaceableFlowableNode connectedNode = getSelectedNodeButIgnore(node);
 				if (connectedNode == null) {
 					// create new node
-					ConnectorNode newConnectorNode = new ConnectorNode(x, y);
+					ConnectorNode newConnectorNode = new ConnectorNode(x - xOff, y - yOff);
 					if (node instanceof AbstractPlaceableFlowableNode) {
 						newConnectorNode.addFlowNode((AbstractPlaceableFlowableNode) node);
 					} else {
@@ -203,9 +203,9 @@ public class Free_Build_State implements GameState {
 				} else {
 					// connect node if possible
 					if (node instanceof StartNode) {
+						connectedNode.addFlowNode(node);
 						node.setSelected(false);
 						getSelectedNode().setSelected(false);
-						System.out.println("asdf");
 					} else {
 						if (connectedNode instanceof AbstractPlaceableFlowableNode) {
 							((AbstractPlaceableFlowableNode) connectedNode).addFlowNode((AbstractPlaceableFlowableNode) node);
@@ -226,16 +226,16 @@ public class Free_Build_State implements GameState {
 				}
 			}
 			if (!endNodeAlreadyExists) {
-				nodes.add(new EndNode(x, y));
+				nodes.add(new EndNode(x - xOff, y - yOff));
 			}
 			break;
 		}
 	}
 
-	private AbstractPlaceableNode getSelectedNodeButIgnore(AbstractPlaceableNode ignoreNode) {
+	private AbstractPlaceableFlowableNode getSelectedNodeButIgnore(AbstractPlaceableNode ignoreNode) {
 		for (AbstractPlaceableNode node : nodes) {
 			if (node.isSelected() && node != ignoreNode) {
-				return node;
+				return (AbstractPlaceableFlowableNode) node;
 			}
 		}
 		return null;
